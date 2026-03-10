@@ -67,21 +67,17 @@ jobs:
           path: jest-app/coverage/
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: jest-app
           args: >
-            -Dsonar.host.url=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-            -Dsonar.projectKey=jest-sonarqube
-            -Dsonar.sources=src
-            -Dsonar.tests=src
-            -Dsonar.inclusions=src/**/*.ts,src/**/*.tsx,src/**/*.js,src/**/*.jsx
-            -Dsonar.exclusions=src/**/*.test.ts,src/**/*.test.tsx,src/setupTests.ts,node_modules/**,dist/**
-            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx,src/**/*.test.js
+            -Dsonar.host.url=https://scaling-cod-4j7r9q5gw555cq4ww-9000.app.github.dev
+            -Dsonar.projectKey=jest1-sonarqube
+            -Dsonar.sources=.
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.test.ts
 
   # ── Step 3: Deploy ──────────────────────────────────────────
   deploy:
