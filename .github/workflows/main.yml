@@ -1,4 +1,4 @@
-name: CI/CD Pipeline1
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main, master]
 
-# This ensures every "run" command starts inside your project folder
 defaults:
   run:
     working-directory: jest-app 
@@ -25,19 +24,24 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          # Tells the cache where to find the lock file
           cache-dependency-path: 'jest-app/package-lock.json'
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          # Manually install ts-node to ensure jest.config.ts can be parsed
+          npm install --save-dev ts-node
 
       - name: Run tests with coverage
         run: npm run test:coverage -- --ci --forceExit
 
       - name: Check coverage is ≥ 80%
         run: |
+          # Ensure coverage folder exists before grepping
+          if [ ! -f coverage/lcov.info ]; then echo "Coverage report not found!"; exit 1; fi
           FOUND=$(grep -h "^LF:" coverage/lcov.info | awk -F: '{s+=$2} END{print s}')
           HIT=$(grep -h "^LH:" coverage/lcov.info | awk -F: '{s+=$2} END{print s}')
+          if [ "$FOUND" -eq 0 ]; then echo "No lines found to cover"; exit 1; fi
           PCT=$(( HIT * 100 / FOUND ))
           echo "Coverage: $PCT%"
           [ "$PCT" -ge 80 ] || { echo " Coverage $PCT% < 80%. Failing."; exit 1; }
@@ -46,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: jest-app/coverage/ # Path relative to the root
+          path: jest-app/coverage/
 
   # ── Step 2: SonarQube Analysis ────────────────────────────────
   sonar:
@@ -70,7 +74,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          # projectBaseDir tells Sonar where the code is
           projectBaseDir: jest-app
           args: >
             -Dsonar.projectKey=jest-sonarqube
@@ -81,7 +84,7 @@ jobs:
             -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx,src/**/*.test.js
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
-  # ── Step 3: Deploy (only on push to main/master) ──────────────
+  # ── Step 3: Deploy ──────────────────────────────────────────
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
@@ -89,13 +92,11 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'jest-app/package-lock.json'
-
       - run: npm ci
       - run: npm run build
       - run: echo "Deploying application..."
