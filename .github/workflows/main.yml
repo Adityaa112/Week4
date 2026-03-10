@@ -74,6 +74,7 @@ jobs:
           projectBaseDir: jest-app
           args: >
             -Dsonar.host.url=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
             -Dsonar.projectKey=jest-sonarqube
             -Dsonar.sources=src
             -Dsonar.tests=src
