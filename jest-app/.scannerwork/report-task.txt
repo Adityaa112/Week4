@@ -1,0 +1,6 @@
+projectKey=jest-sonarqube
+serverUrl=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev
+serverVersion=10.7.0.96327
+dashboardUrl=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev/dashboard?id=jest-sonarqube
+ceTaskId=89fe0c90-4be5-4059-b21d-0991cfb83392
+ceTaskUrl=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev/api/ce/task?id=89fe0c90-4be5-4059-b21d-0991cfb83392
