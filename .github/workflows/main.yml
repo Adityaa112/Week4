@@ -29,7 +29,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
-          # Manually install ts-node to ensure jest.config.ts can be parsed
           npm install --save-dev ts-node
 
       - name: Run tests with coverage
@@ -37,7 +36,6 @@ jobs:
 
       - name: Check coverage is ≥ 80%
         run: |
-          # Ensure coverage folder exists before grepping
           if [ ! -f coverage/lcov.info ]; then echo "Coverage report not found!"; exit 1; fi
           FOUND=$(grep -h "^LF:" coverage/lcov.info | awk -F: '{s+=$2} END{print s}')
           HIT=$(grep -h "^LH:" coverage/lcov.info | awk -F: '{s+=$2} END{print s}')
@@ -69,13 +67,13 @@ jobs:
           path: jest-app/coverage/
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           projectBaseDir: jest-app
           args: >
+            -Dsonar.host.url=https://potential-happiness-979x46rqjrx4f946-9000.app.github.dev
             -Dsonar.projectKey=jest-sonarqube
             -Dsonar.sources=src
             -Dsonar.tests=src
